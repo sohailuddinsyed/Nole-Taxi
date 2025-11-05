@@ -1,9 +1,14 @@
 #include "MyRBT.h"
 
 int main() {
-    RBT *root = new RBT(new RBTNode(nullptr, nullptr, 1, 1024, 300, 10));
-    root -> heap -> getTopNode();
-    cout << root -> heap -> getSize() << endl;
+    RBT *rbt = new RBT();
+    rbt -> insert(new RBTNode(nullptr, nullptr, 1, 1024, 300, 10));
+    rbt -> heap -> getTopNode();
+
+    rbt -> insert(new RBTNode(nullptr, nullptr, 1, 1022, 200, 10));
+    rbt -> heap -> getTopNode();
+    cout << rbt -> heap -> getSize() << endl;
+    cout << rbt -> root -> leftChild -> rideNumber << endl;
     // cout << root -> heap -> top() -> rbtNode -> color;
 }
 

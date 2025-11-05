@@ -39,9 +39,26 @@ public:
         heap -> push(root -> heapNode);
     }
 
+    RBTNode** findPosition(int rideNumber, RBTNode **parent, RBTNode *root) {
+        if(!root) return parent;
+
+        if(rideNumber < root -> rideNumber) 
+            return findPosition(rideNumber, &root, root -> leftChild);
+        return findPosition(rideNumber, &root, root -> rightChild);
+    }
+
     void insert(RBTNode *node) {
-        int rn = node -> rideNumber, rc = node -> rideCost,
+        int rn = node -> rideNumber, 
+            rc = node -> rideCost,
             td = node -> tripDuration;
+
+        if(root == nullptr) {
+            root = node;
+        } else {
+            RBTNode **parent = findPosition(rn, &root, root);
+            if(rn > (*parent) -> rideNumber) (*parent) -> rightChild = node;
+            else (*parent) -> leftChild = node;
+        }
         heap -> push(node -> heapNode);
     }
 };
