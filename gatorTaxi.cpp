@@ -1,15 +1,77 @@
+#include <fstream>
+#include <string>
+
 #include "MyRBT.h"
 
-int main() {
-    RBT *rbt = new RBT();
-    rbt -> insert(new RBTNode(nullptr, nullptr, 1, 1024, 300, 10));
-    rbt -> heap -> getTopNode();
+void insertRide(int* args) {
+    cout << args[1];
+}
 
-    rbt -> insert(new RBTNode(nullptr, nullptr, 1, 1022, 200, 10));
-    rbt -> heap -> getTopNode();
-    cout << rbt -> heap -> getSize() << endl;
-    cout << rbt -> root -> leftChild -> rideNumber << endl;
-    // cout << root -> heap -> top() -> rbtNode -> color;
+void parseArgs(int *args, string line) {
+    int index = line.find_first_of("(") + 1, len = line.size() - index;
+    string argStr = line.substr(index, len - 1);
+
+    int firstComma = argStr.find_first_of(",");
+    args[0] = stoi(argStr.substr(0, firstComma));
+
+    int secondComma = argStr.find_last_of(",");
+    if(secondComma == string::npos) return;
+    args[1] = stoi(argStr.substr(firstComma + 1, secondComma - firstComma));    
+}
+
+void parseInput(int argc, char **argv) {
+    fstream newfile;
+    newfile.open(argv[1], ios::in);
+    if(newfile.is_open()){
+        string line;
+        while(getline(newfile, line)){ 
+            string operation = line.substr(0, 3);
+            int args[3];
+            if(operation == "Ins") {
+                parseArgs(args, line);
+                insertRide(args);
+            } 
+        }
+        newfile.close();
+    }
+}
+
+int main(int argc, char **argv) {
+    if(argc > 1) {
+        parseInput(argc, argv);
+        return 0;
+    }
+
+    RBT *rbt = new RBT();
+    Heap *heap = new Heap();
+    RBTNode *rnode;
+    HeapNode *hnode;
+
+
+    rnode = new RBTNode(nullptr, nullptr, nullptr, BLACK, 1024, 300, 10);
+    hnode = new HeapNode(nullptr, 1024, 300, 10);
+    rbt -> insert(rnode);
+    heap -> push(hnode);
+    rnode -> heapNode = hnode;
+    hnode -> rbtNode = rnode;
+
+    heap -> getTopNode();
+    cout << heap -> getSize() << endl;
+
+
+    rnode = new RBTNode(nullptr, nullptr, nullptr, RED, 1022, 200, 10);
+    hnode = new HeapNode(nullptr, 1022, 200, 10);
+    rbt -> insert(rnode);
+    heap -> push(hnode);
+    rnode -> heapNode = hnode;
+    hnode -> rbtNode = rnode;
+
+
+    heap -> getTopNode();
+    cout << heap -> getSize() << endl;
+
+
+    rnode = heap -> top() -> rbtNode;
 }
 
 

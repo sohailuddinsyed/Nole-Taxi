@@ -39,7 +39,7 @@ public:
         heapifyUp(back);
         back++;
     }
-    
+
     void getTopNode () {
         heap[0] -> printHeapNode();
     }

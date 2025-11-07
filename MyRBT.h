@@ -1,6 +1,6 @@
 #include "MyHeap.h"
-#define RED 0
-#define BLACK 1
+#define RED false
+#define BLACK true
 
 class RBTNode {
 public :
@@ -11,40 +11,45 @@ public :
 
     RBTNode() {}
 
-    RBTNode(RBTNode *leftChild, RBTNode *rightChild,
+    RBTNode(RBTNode *leftChild, RBTNode *rightChild, HeapNode* heapNode,
     bool color, int rideNumber, int rideCost, int tripDuration) {
         this -> leftChild = leftChild;
         this -> rightChild = rightChild;
-        this -> heapNode = new HeapNode(this, rideNumber, rideCost, tripDuration);
+        this -> heapNode = heapNode;
         this -> color = color;
         this -> rideNumber = rideNumber;
         this -> rideCost = rideCost;
         this -> tripDuration = tripDuration;
+    }
+    RBTNode(RBTNode *node) {
+        this -> leftChild = node -> leftChild;
+        this -> rightChild = node -> rightChild;
+        this -> heapNode = node -> heapNode;
+        this -> color = node -> color;
+        this -> rideNumber = node -> rideNumber;
+        this -> rideCost = node -> rideCost;
+        this -> tripDuration = node -> tripDuration;
     }
 };
 
 class RBT {
 public:
     RBTNode *root;
-    Heap *heap;
 
     RBT() {
         root = nullptr;
-        heap = new Heap();
     }
 
     RBT(RBTNode *rbtNode) {
         root = rbtNode;
-        heap = new Heap();
-        heap -> push(root -> heapNode);
     }
 
-    RBTNode** findPosition(int rideNumber, RBTNode **parent, RBTNode *root) {
+    RBTNode** findParent(int rideNumber, RBTNode **parent, RBTNode *root) {
         if(!root) return parent;
 
         if(rideNumber < root -> rideNumber) 
-            return findPosition(rideNumber, &root, root -> leftChild);
-        return findPosition(rideNumber, &root, root -> rightChild);
+            return findParent(rideNumber, &root, root -> leftChild);
+        return findParent(rideNumber, &root, root -> rightChild);
     }
 
     void insert(RBTNode *node) {
@@ -52,13 +57,17 @@ public:
             rc = node -> rideCost,
             td = node -> tripDuration;
 
-        if(root == nullptr) {
+        RBTNode **parent = findParent(rn, &node, root);
+        if((*parent) == node) {
             root = node;
         } else {
-            RBTNode **parent = findPosition(rn, &root, root);
             if(rn > (*parent) -> rideNumber) (*parent) -> rightChild = node;
             else (*parent) -> leftChild = node;
         }
-        heap -> push(node -> heapNode);
     }
+
+    void LLRotation(){}
+    void RRRotation () {}
+    void LRRotation() {}
+    void RLRotation() {}
 };
