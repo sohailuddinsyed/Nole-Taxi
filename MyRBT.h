@@ -1,8 +1,9 @@
 #include "MyHeap.h"
 #include <queue>
 
-#define RED false
-#define BLACK true
+#define RED 0
+#define BLACK 1
+
 #define L 0
 #define R 1
 
@@ -13,6 +14,7 @@ public :
     bool color;
     int rideNumber, rideCost, tripDuration;
 
+    // Initializes external nodes
     RBTNode() {
         this -> leftChild = nullptr;
         this -> rightChild = nullptr;
@@ -24,6 +26,7 @@ public :
         this -> tripDuration = -1;
     }
 
+    // Initializes non-external RBT nodes
     RBTNode(RBTNode *leftChild, RBTNode *rightChild, RBTNode *parent, HeapNode* heapNode,
     bool color, int rideNumber, int rideCost, int tripDuration) {
         this -> leftChild = leftChild != nullptr ?
@@ -37,6 +40,8 @@ public :
         this -> rideCost = rideCost;
         this -> tripDuration = tripDuration;
     }
+
+    // Initializes non-external RBT nodes from an existing node
     RBTNode(RBTNode *node) {
         this -> leftChild = node -> leftChild != nullptr ?
             node -> leftChild : new RBTNode();
@@ -67,31 +72,63 @@ public:
         treeSize = 1;
     }
 
+    bool isExternalNode(RBTNode* node) {
+        return node -> rideNumber == -1;
+    }
+
+    RBTNode* findNode(int key, RBTNode* node) {
+        if(!node || isExternalNode(node)) return nullptr;
+
+        int currentRideNumber = node -> rideNumber;
+        if(key == currentRideNumber) return node;
+
+        if(key > currentRideNumber) return findNode(key, node -> rightChild);
+        return findNode(key, node -> leftChild);
+    }
+
+    RBTNode* findParent(int key, RBTNode* node) {
+        if(!node) return node;
+        if(key > (node -> rideNumber)) {
+            if(isExternalNode(node -> rightChild)) return node;
+            node = node -> rightChild;
+        } else {
+            if(isExternalNode(node -> leftChild)) return node;
+            node = node -> leftChild;
+        }
+        return findParent(key, node);
+    }
+
     void insert(RBTNode *p) {
         int rn = p -> rideNumber;
-
-        RBTNode *pp = root;
         treeSize++;
+
+        RBTNode *pp = findParent(rn, root);
 
         if(pp == nullptr) {
             root = p;
             p -> color = BLACK;
-            p -> parent = nullptr;
             return;
         } 
 
-        while(pp && pp -> rideNumber != -1) {
-            p -> parent = pp;
-            if(rn > (pp -> rideNumber)) pp = pp -> rightChild;
-            else pp = pp -> leftChild;
-        }
-        pp = p -> parent;
+        p -> parent = pp;
         if(rn < pp -> rideNumber) pp -> leftChild = p;
         else pp -> rightChild = p;
 
         adjustRBT(p);
     }
 
+    void deleteNode(int rideNumber) {
+        RBTNode *p = findNode(rideNumber, root);
+        if(!p) return;
+
+        bool color = p -> color;
+        if(color == RED) {
+            delete p;
+        }
+        treeSize--;
+    }
+
+    // Rebalances and maint
     void adjustRBT(RBTNode* p) {
         RBTNode *pp = p -> parent, *gp = pp -> parent;
         if(pp -> color == BLACK) return;
@@ -102,7 +139,6 @@ public:
         Y = (pp -> leftChild == p) ? L : R;
         r = (X == L) ? gp -> rightChild -> color : gp -> leftChild -> color;
 
-        cout << X << Y << r << endl;
         if(r == RED) {
             XYr(p);
             return;
@@ -149,37 +185,41 @@ public:
     }
 
     void LLRotation(RBTNode* gp) {
-        RBTNode *pp = gp -> leftChild, *p = pp -> leftChild;
-        RBTNode *c = pp -> rightChild, *b = p -> rightChild;
+        RBTNode *ggp = gp -> parent, *pp = gp -> leftChild, *p = pp -> leftChild;
+        RBTNode *c = pp -> rightChild;
         
         pp -> rightChild = gp;
         gp -> leftChild = c;
 
-        pp -> parent = gp -> parent;
-
-        if(gp -> parent != nullptr) {
-            if(gp -> parent -> rightChild == gp) gp -> parent -> rightChild = pp;
-            else gp -> parent -> leftChild = pp;
-        } else root = pp;
-
+        pp -> parent = ggp;
         gp -> parent = pp;
+
+        if(!ggp) {
+            root = pp;
+            return;
+        }
+
+        if(ggp -> rightChild == gp) ggp -> rightChild = pp;
+        else ggp -> leftChild = pp;       
     }
 
     void RRRotation(RBTNode* gp) {
-        RBTNode *pp = gp -> rightChild, *p = pp -> rightChild;
+        RBTNode *ggp = gp -> parent, *pp = gp -> rightChild, *p = pp -> rightChild;
         RBTNode *c = pp -> leftChild, *b = p -> leftChild;
         
         pp -> leftChild = gp;
         gp -> rightChild = c;
 
-        pp -> parent = gp -> parent;
-
-        if(gp -> parent != nullptr) {
-            if(gp -> parent -> rightChild == gp) gp -> parent -> rightChild = pp;
-            else gp -> parent -> leftChild = pp;
-        } else root = pp;
-
+        pp -> parent = ggp;
         gp -> parent = pp;
+
+        if(!ggp) {
+            root = pp;
+            return;
+        }
+
+        if(ggp -> leftChild == gp) ggp -> leftChild = pp;
+        else ggp -> rightChild = pp; 
     }
 
     void LRRotation(RBTNode* pp, RBTNode *gp) {
