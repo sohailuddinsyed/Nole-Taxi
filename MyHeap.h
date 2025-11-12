@@ -1,4 +1,5 @@
 #include<iostream>
+#include<math.h>
 using namespace std;
 
 class RBTNode;
@@ -60,8 +61,8 @@ public:
 
         int prc = heap[parent] -> rideCost, crc = heap[index] -> rideCost;
         int ptd = heap[parent] -> tripDuration, ctd = heap[index] -> tripDuration;
+        
         if(prc < crc) return;
-
         if(prc > crc) swap(heap[parent], heap[index]);
         else if(ptd > ctd) swap(heap[parent], heap[index]);
         else return;
