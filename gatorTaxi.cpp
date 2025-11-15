@@ -1,38 +1,45 @@
 #include <fstream>
-#include <string>
 
 #include "MyRBT.h"
+#include "stringUtils.h"
 
-void insertRide(int* args) {
-    cout << args[1];
+void print(int *args) {
+    cout << "print: " << args[0] << endl;
+    // range(args[0], args[0]);
 }
 
-void parseArgs(int *args, string line) {
-    int index = line.find_first_of("(") + 1, len = line.size() - index;
-    string argStr = line.substr(index, len - 1);
+void printRange(int *args) {
+    cout << "printRange: " << args[0] << " " << args[1] << endl;
+    // range(args[0], args[1]);
+}
 
-    int firstComma = argStr.find_first_of(",");
-    args[0] = stoi(argStr.substr(0, firstComma));
+void insertRide(int* args) {
+    cout << "insert: " << args[0] << " " << args[1] << " " << args[2] << endl;
+}
 
-    int secondComma = argStr.find_last_of(",");
-    if(secondComma == string::npos) return;
-    args[1] = stoi(argStr.substr(firstComma + 1, secondComma - firstComma));    
+void getNextRide() {
+    cout << "getNextRide" << endl;
+}
+
+void cancelRide(int* args) {
+    cout << "cancelRide: " << args[0] << endl;
+}
+
+void updateTrip(int* args) {
+    cout<< "updateTrip: " << args[0] << " " << args[1] << endl;
 }
 
 void parseInput(int argc, char **argv) {
-    fstream newfile;
-    newfile.open(argv[1], ios::in);
-    if(newfile.is_open()){
-        string line;
-        while(getline(newfile, line)){ 
-            string operation = line.substr(0, 3);
-            int args[3];
-            if(operation == "Ins") {
-                parseArgs(args, line);
-                insertRide(args);
-            } 
+    fstream inputFile;
+    inputFile.open(argv[1], ios::in);
+
+    if(inputFile.is_open()){
+        string fileLine;
+        while(getline(inputFile, fileLine)){ 
+            string operationPrefix = fileLine.substr(0, 3);
+            processOperation(fileLine, operationPrefix);
         }
-        newfile.close();
+        inputFile.close();
     }
 }
 

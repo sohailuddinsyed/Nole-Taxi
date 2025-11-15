@@ -141,7 +141,7 @@ public:
         if(rn < r1 || rn > r2 || isExternalNode(node)) return;
 
         printInorder(r1, r2, node -> leftChild);
-        cout << "(" << node -> rideNumber << ")" << " ";
+        cout << "(" << node -> rideNumber << "," << node -> rideCost << "," << node -> tripDuration << ")" << ",";
         printInorder(r1, r2, node -> rightChild);
     }
 
