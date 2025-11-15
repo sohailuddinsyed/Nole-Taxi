@@ -35,6 +35,7 @@ public:
     int getSize() {
         return back;
     }
+    
     void push(HeapNode *heapNode) {
         heap[back] = heapNode;
         heapifyUp(back);

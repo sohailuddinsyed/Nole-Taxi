@@ -72,6 +72,12 @@ public:
         treeSize = 1;
     }
 
+    int getTreeSize(RBTNode *root) {
+        if(!isExternalNode(root)) 
+            return getTreeSize(root -> leftChild) + getTreeSize(root -> rightChild) + 1;
+        return 0;
+    }
+
     bool isExternalNode(RBTNode* node) {
         return node -> rideNumber == -1;
     }
@@ -117,18 +123,299 @@ public:
         adjustRBT(p);
     }
 
+    RBTNode *findCommonAncestor(int r1, int r2, RBTNode *root) {
+        if(root -> rideNumber < r1) return findCommonAncestor(r1, r2, root -> rightChild);
+        if(root -> rideNumber > r2) return findCommonAncestor(r1, r2, root -> leftChild);
+        return root;
+    }
+
+    void range(int r1, int r2) {
+        RBTNode *n1 = findNode(r1, root), *n2 = findNode(r2, root);
+        RBTNode *ancestor = findCommonAncestor(r1, r2, root);
+        printInorder(r1, r2, ancestor);
+        cout << endl;
+    }
+
+    void printInorder(int r1, int r2, RBTNode* node) {
+        int rn = node -> rideNumber;
+        if(rn < r1 || rn > r2 || isExternalNode(node)) return;
+
+        printInorder(r1, r2, node -> leftChild);
+        cout << "(" << node -> rideNumber << ")" << " ";
+        printInorder(r1, r2, node -> rightChild);
+    }
+
+    int getChildType(RBTNode* pp, RBTNode* p) {
+        if(pp -> rightChild == p) return R;
+        return L;
+    }
+
+    RBTNode* getMaxNode(RBTNode *p, RBTNode *currMax) {
+        if(isExternalNode(p)) return currMax;
+        else return getMaxNode(p -> rightChild, p);
+    }
+
     void deleteNode(int rideNumber) {
         RBTNode *p = findNode(rideNumber, root);
         if(!p) return;
 
-        bool color = p -> color;
-        if(color == RED) {
-            delete p;
+        RBTNode *pp = p -> parent, *lc = p -> leftChild, *rc = p -> rightChild, *y;
+        int noOfChildren = isExternalNode(lc) && isExternalNode(rc) ? 0 : 
+                            !isExternalNode(lc) && !isExternalNode(rc) ? 2 : 1;
+
+        if(noOfChildren == 0) {
+            // Ext node is root
+            RBTNode *extNode = p -> rightChild;
+            if(p == root) {
+                root = extNode;
+            } else {
+                if(getChildType(pp, p) == R) pp -> rightChild = extNode;
+                else pp -> leftChild = extNode;
+            }
+            y = extNode;
+        } else if(noOfChildren == 1) {
+            RBTNode *lc = p -> leftChild, *rc = p -> rightChild;
+            if(p == root) {
+                root = isExternalNode(lc) ? rc : lc;
+            } else {
+                if(!isExternalNode(rc) && getChildType(pp, p) == R) {
+                    pp -> rightChild = rc;
+                } else if(!isExternalNode(lc) && getChildType(pp, p) == R) {
+                    pp -> rightChild = lc;
+                } else if(!isExternalNode(rc)) pp -> leftChild = rc;
+                else pp -> leftChild = rc;
+            }
+            y = isExternalNode(lc) ? rc : lc;
+        } else {
+            RBTNode *LSTMaxNode = getMaxNode(p -> leftChild, p);
+            cout << LSTMaxNode -> rideNumber << endl;
+            LSTMaxNode -> leftChild -> parent = LSTMaxNode -> parent;
+            if(LSTMaxNode != p -> leftChild) {
+                LSTMaxNode -> parent -> rightChild = LSTMaxNode -> leftChild;
+                y = LSTMaxNode -> parent -> rightChild;
+            } else {
+                LSTMaxNode -> parent -> rightChild = LSTMaxNode -> leftChild;
+                y = LSTMaxNode -> parent -> rightChild;
+            }
+            p -> rideNumber = LSTMaxNode -> rideNumber;
+        }
+
+
+        bool colorOfDeletedNode = p -> color;
+        if(colorOfDeletedNode == RED) {
+            // y -> color = RED;
+        } else {
+            adjustRBTAfterDelete(y, pp);
         }
         treeSize--;
     }
 
-    // Rebalances and maint
+    void adjustRBTAfterDelete(RBTNode *y, RBTNode* py) {
+        if(y == root) {
+            y -> color = BLACK;
+            return;
+        }
+
+        RBTNode *v = (getChildType(py, y) == L) ? py -> rightChild : py -> leftChild;
+        if(isExternalNode(v)) {
+            if(!isExternalNode(y))
+                y -> color = RED;
+            return;
+        }
+        RBTNode *a = v -> leftChild, *b = v -> rightChild;
+        int X = getChildType(py, y), c = v -> color, 
+        n = a -> color == RED ? (b -> color == RED ? 2 : 1) : b -> color == RED ? 1 : 0;
+
+        //cases
+        if(X == R && c == BLACK && n == 0) {
+            cout << "RB0 case" << endl;
+            RB0(y, py);
+        } else if(X == R && c == BLACK && n == 1) {
+            RB1Cases(y, py, a);
+        } else if(X == R && c == BLACK && n == 2) {
+            RB2(y, py);
+        } else if(X == R && c == RED) {
+            RRCases(py);
+        }
+
+        if(X == L && c == BLACK && n == 0) {
+            cout << "LB0 case" << endl;
+            LB0(y, py);
+        } else if(X == L && c == BLACK && n == 1) {
+            LB1Cases(y, py, a);
+        } else if(X == L && c == BLACK && n == 2) {
+            LB2(y, py);
+        } else if(X == L && c == RED) {
+            LRCases(py);
+        }
+    }
+
+    void RB0(RBTNode *y, RBTNode *py) {
+        if(y == root) {
+            y -> color = BLACK;
+            return;
+        }
+        RBTNode *v = py -> leftChild;
+
+        if(py -> color == BLACK) {
+            v -> color = RED;
+        } else {
+            py -> color = BLACK;
+            v -> color = RED;
+            return;
+        }
+        RB0(py, py -> parent);
+    }
+
+    void RB1Cases(RBTNode *y, RBTNode *py, RBTNode *a) {
+        if(a == RED) {
+            cout << "RB11 case" << endl;
+            RB11(y, py);
+        } else {
+            cout << "RB12 case" << endl;
+            RB12(y, py);
+        }
+    }
+
+    void RB11(RBTNode *y, RBTNode *py) {
+        RBTNode* a = py -> leftChild -> leftChild;
+        a -> color = BLACK;
+        LLRotation(py);
+    }
+
+    void RB12(RBTNode *y, RBTNode *py) {
+        RBTNode* w = py -> leftChild -> rightChild;
+        w -> color = BLACK;
+        LRRotation(py -> leftChild, py);
+    }
+
+    void RB2(RBTNode *y, RBTNode *py) {
+        RBTNode* w = py -> leftChild -> rightChild;
+        w -> color = BLACK;
+        LRRotation(py -> leftChild, py);
+    }
+
+    void RRCases(RBTNode *py) {
+        RBTNode *v = py -> leftChild, *w = v -> rightChild;
+        RBTNode *b = w -> leftChild, *c = w -> rightChild;
+        int n = c -> color == RED ? (b -> color == RED ? 2 : 1) : b -> color == RED ? 1 : 0;
+
+        if(n == 0) {
+            RR0(py, v, w);
+        } else if(n == 1) {
+            if(b -> color == RED) RR11(v, py, b);
+            else RR12(py, v, w, c);
+        } else {
+            RR2(py, v, w, c);
+        }
+    }
+
+    void RR0(RBTNode *py, RBTNode *v, RBTNode *w) {
+        LLRotation(py);
+        v -> color = BLACK;
+        w -> color = RED;
+    }
+
+    void RR11(RBTNode *y, RBTNode *py, RBTNode *b) {
+        LRRotation(y, py);
+        b -> color = BLACK;
+    }
+
+    void RR12(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+        RRRotation(w);
+        LRRotation(v, py);
+        c -> color = BLACK;
+    }
+
+    void RR2(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+        RRRotation(w);
+        LRRotation(v, py);
+        c -> color = BLACK;
+    }
+
+    void LB0(RBTNode *y, RBTNode *py) {
+        if(y == root) {
+            y -> color = BLACK;
+            return;
+        }
+        RBTNode *v = py -> rightChild;
+
+        if(py -> color == BLACK) {
+            v -> color = RED;
+        } else {
+            py -> color = BLACK;
+            v -> color = RED;
+            return;
+        }
+        RB0(py, py -> parent);
+    }
+
+    void LB1Cases(RBTNode *y, RBTNode *py, RBTNode *a) {
+        if(a == RED) {
+            cout << "LB11 case" << endl;
+            LB11(y, py);
+        } else {
+            cout << "LB12 case" << endl;
+            LB12(y, py);
+        }
+    }
+
+    void LB11(RBTNode *y, RBTNode *py) {
+        RBTNode* a = py -> rightChild -> leftChild;
+        a -> color = BLACK;
+        RRRotation(py);
+    }
+
+    void LB12(RBTNode *y, RBTNode *py) {
+        RBTNode* w = py -> rightChild -> rightChild;
+        w -> color = BLACK;
+        RLRotation(py -> rightChild, py);
+    }
+
+    void LB2(RBTNode *y, RBTNode *py) {
+        RBTNode* w = py -> rightChild -> rightChild;
+        w -> color = BLACK;
+        RLRotation(py -> rightChild, py);
+    }
+
+    void LRCases(RBTNode *py) {
+        RBTNode *v = py -> rightChild, *w = v -> leftChild;
+        RBTNode *b = w -> leftChild, *c = w -> rightChild;
+        int n = c -> color == RED ? (b -> color == RED ? 2 : 1) : b -> color == RED ? 1 : 0;
+
+        if(n == 0) {
+            LR0(py, v, w);
+        } else if(n == 1) {
+            if(b -> color == RED) LR11(v, py, b);
+            else LR12(py, v, w, c);
+        } else {
+            LR2(py, v, w, c);
+        }
+    }
+
+    void LR0(RBTNode *py, RBTNode *v, RBTNode *w) {
+        RRRotation(py);
+        v -> color = BLACK;
+        w -> color = RED;
+    }
+
+    void LR11(RBTNode *v, RBTNode *py, RBTNode *b) {
+        RLRotation(v, py);
+        b -> color = BLACK;
+    }
+
+    void LR12(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+        LLRotation(w);
+        RLRotation(v, py);
+        c -> color = BLACK;
+    }
+
+    void LR2(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+        LLRotation(w);
+        RLRotation(v, py);
+        c -> color = BLACK;
+    }
+
     void adjustRBT(RBTNode* p) {
         RBTNode *pp = p -> parent, *gp = pp -> parent;
         if(pp -> color == BLACK) return;
@@ -200,7 +487,9 @@ public:
         }
 
         if(ggp -> rightChild == gp) ggp -> rightChild = pp;
-        else ggp -> leftChild = pp;       
+        else ggp -> leftChild = pp;    
+
+        pp -> parent = ggp;   
     }
 
     void RRRotation(RBTNode* gp) {
@@ -220,6 +509,8 @@ public:
 
         if(ggp -> leftChild == gp) ggp -> leftChild = pp;
         else ggp -> rightChild = pp; 
+
+        pp -> parent = ggp;
     }
 
     void LRRotation(RBTNode* pp, RBTNode *gp) {
@@ -252,5 +543,4 @@ public:
             cout << endl;
         }
     }
-
 };
