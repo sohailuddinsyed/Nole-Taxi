@@ -21,9 +21,9 @@ public :
         this -> parent = nullptr;
         this -> heapNode = nullptr;
         this -> color = BLACK;
-        this -> rideNumber = -1;
-        this -> rideCost = -1;
-        this -> tripDuration = -1;
+        this -> rideNumber = 0;
+        this -> rideCost = 0;
+        this -> tripDuration = 0;
     }
 
     // Initializes non-external RBT nodes
@@ -79,7 +79,7 @@ public:
     }
 
     bool isExternalNode(RBTNode* node) {
-        return node -> rideNumber == -1;
+        return node -> rideNumber == 0 && node -> tripDuration == 0 && node -> rideCost == 0;
     }
 
     RBTNode* findNode(int key, RBTNode* node) {
@@ -124,25 +124,33 @@ public:
     }
 
     RBTNode *findCommonAncestor(int r1, int r2, RBTNode *root) {
+        if(isExternalNode(root)) return root;
         if(root -> rideNumber < r1) return findCommonAncestor(r1, r2, root -> rightChild);
         if(root -> rideNumber > r2) return findCommonAncestor(r1, r2, root -> leftChild);
         return root;
     }
 
-    void range(int r1, int r2) {
+    string range(int r1, int r2) {
         RBTNode *n1 = findNode(r1, root), *n2 = findNode(r2, root);
         RBTNode *ancestor = findCommonAncestor(r1, r2, root);
-        printInorder(r1, r2, ancestor);
-        cout << endl;
+
+        string output;
+        if(!isExternalNode(ancestor))
+            printInorder(r1, r2, output, ancestor);
+        else output += "(" + to_string(ancestor -> rideNumber) + "," + to_string(ancestor -> rideCost) + ","
+            + to_string(ancestor -> tripDuration) + ")," ;
+
+        return output.substr(0, output.length() - 1) + "\n";
     }
 
-    void printInorder(int r1, int r2, RBTNode* node) {
+    void printInorder(int r1, int r2, string &output, RBTNode* node) {
         int rn = node -> rideNumber;
         if(rn < r1 || rn > r2 || isExternalNode(node)) return;
 
-        printInorder(r1, r2, node -> leftChild);
-        cout << "(" << node -> rideNumber << "," << node -> rideCost << "," << node -> tripDuration << ")" << ",";
-        printInorder(r1, r2, node -> rightChild);
+        printInorder(r1, r2, output, node -> leftChild);
+        output += "(" + to_string(node -> rideNumber) + "," + to_string(node -> rideCost) + ","
+            + to_string(node -> tripDuration) + "),";
+        printInorder(r1, r2, output, node -> rightChild);
     }
 
     int getChildType(RBTNode* pp, RBTNode* p) {
@@ -417,6 +425,8 @@ public:
     }
 
     void adjustRBT(RBTNode* p) {
+        if(!p || !p -> parent || !p -> parent -> parent) return;
+
         RBTNode *pp = p -> parent, *gp = pp -> parent;
         if(pp -> color == BLACK) return;
 
@@ -468,7 +478,8 @@ public:
         pp -> color = BLACK;
         gp -> color = RED;
 
-        XYr(gp);
+        if(gp == root) gp -> color = BLACK;
+        adjustRBT(gp);
     }
 
     void LLRotation(RBTNode* gp) {
@@ -534,7 +545,7 @@ public:
                 q.pop();
                 char color = node -> color ? 'b' : 'r';
 
-                if(node -> rideNumber >= 0) 
+                if(node -> rideNumber > 0) 
                     cout << color << "-" << node -> rideNumber << "\t";
                 if(node -> leftChild) q.push(node -> leftChild);
                 if(node -> rightChild) q.push(node -> rightChild);

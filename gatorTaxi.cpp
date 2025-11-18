@@ -54,19 +54,50 @@ int main(int argc, char **argv) {
     RBTNode *rnode;
     HeapNode *hnode;
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 13, 200, 10);
+        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 41, 200, 10);
     hnode = new HeapNode(nullptr, 1022, 200, 10);
     rbt -> insert(rnode);
     heap -> push(hnode);
     rnode -> heapNode = hnode;
     hnode -> rbtNode = rnode;
+    rbt -> printTree();
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 10, 200, 10);
+
+        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 38, 200, 10);
     hnode = new HeapNode(nullptr, 1022, 200, 10);
     rbt -> insert(rnode);
     heap -> push(hnode);
     rnode -> heapNode = hnode;
     hnode -> rbtNode = rnode;
+    rbt -> printTree();
+
+
+        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 31, 200, 10);
+    hnode = new HeapNode(nullptr, 1022, 200, 10);
+    rbt -> insert(rnode);
+    heap -> push(hnode);
+    rnode -> heapNode = hnode;
+    hnode -> rbtNode = rnode;
+    rbt -> printTree();
+
+
+        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 12, 200, 10);
+    hnode = new HeapNode(nullptr, 1022, 200, 10);
+    rbt -> insert(rnode);
+    heap -> push(hnode);
+    rnode -> heapNode = hnode;
+    hnode -> rbtNode = rnode;
+    rbt -> printTree();
+
+
+        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 19, 200, 10);
+    hnode = new HeapNode(nullptr, 1022, 200, 10);
+    rbt -> insert(rnode);
+    heap -> push(hnode);
+    rnode -> heapNode = hnode;
+    hnode -> rbtNode = rnode;
+    rbt -> printTree();
+
 
         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 8, 200, 10);
     hnode = new HeapNode(nullptr, 1022, 200, 10);
@@ -74,33 +105,47 @@ int main(int argc, char **argv) {
     heap -> push(hnode);
     rnode -> heapNode = hnode;
     hnode -> rbtNode = rnode;
+    rbt -> printTree();
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 3, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
+    
+    // rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 14, 200, 10);
+    // hnode = new HeapNode(nullptr, 1022, 200, 10);
+    // rbt -> insert(rnode);
+    // heap -> push(hnode);
+    // rnode -> heapNode = hnode;
+    // hnode -> rbtNode = rnode;
+    // rbt -> printTree();
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 4, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
+    //         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 18, 200, 10);
+    // hnode = new HeapNode(nullptr, 1022, 200, 10);
+    // rbt -> insert(rnode);
+    // heap -> push(hnode);
+    // rnode -> heapNode = hnode;
+    // hnode -> rbtNode = rnode;
+    // rbt -> printTree();
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 9, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
+    //         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 16, 200, 10);
+    // hnode = new HeapNode(nullptr, 1022, 200, 10);
+    // rbt -> insert(rnode);
+    // heap -> push(hnode);
+    // rnode -> heapNode = hnode;
+    // hnode -> rbtNode = rnode;
+    // rbt -> printTree();
+
+    //         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 17, 200, 10);
+    // hnode = new HeapNode(nullptr, 1022, 200, 10);
+    // rbt -> insert(rnode);
+    // heap -> push(hnode);
+    // rnode -> heapNode = hnode;
+    // hnode -> rbtNode = rnode;
+    // rbt -> printTree();
+
 
 
     cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
-    rbt -> printTree();
+    // rbt -> printTree();
 
-    rbt -> range(8, 8);
+    cout << rbt -> range(-10,25);
 
     // rbt -> deleteNode(4);
     // rbt -> deleteNode(9);
