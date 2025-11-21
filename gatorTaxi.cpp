@@ -1,4 +1,5 @@
 #include <fstream>
+#include<vector>
 
 #include "MyRBT.h"
 #include "stringUtils.h"
@@ -54,109 +55,31 @@ int main(int argc, char **argv) {
     RBTNode *rnode;
     HeapNode *hnode;
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 41, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
-    rbt -> printTree();
+    vector<int> input = {41,38,31,12,19,8};
 
+    for(int val : input) {
+        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, val, 200, 10);
+        hnode = new HeapNode(nullptr, val, 200, 10);
+        rbt -> insert(rnode);
+        heap -> push(hnode);
+        rnode -> heapNode = hnode;
+        hnode -> rbtNode = rnode;
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 38, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
-    rbt -> printTree();
+        cout << "Inserted " << val << endl;
+            cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
+        rbt -> printTree();
+    }
 
+    // vector<int> dels = {8,12,19,31,38,41};
 
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 31, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
-    rbt -> printTree();
+    // for(int val : dels) {
+    //     rbt -> deleteNode(val);
+    //     cout << "Deleted " << val << endl;
+    //     cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
+    //     rbt -> printTree();
+    // }
 
-
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 12, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
-    rbt -> printTree();
-
-
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 19, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
-    rbt -> printTree();
-
-
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 8, 200, 10);
-    hnode = new HeapNode(nullptr, 1022, 200, 10);
-    rbt -> insert(rnode);
-    heap -> push(hnode);
-    rnode -> heapNode = hnode;
-    hnode -> rbtNode = rnode;
-    rbt -> printTree();
-
-    
-    // rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 14, 200, 10);
-    // hnode = new HeapNode(nullptr, 1022, 200, 10);
-    // rbt -> insert(rnode);
-    // heap -> push(hnode);
-    // rnode -> heapNode = hnode;
-    // hnode -> rbtNode = rnode;
-    // rbt -> printTree();
-
-    //         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 18, 200, 10);
-    // hnode = new HeapNode(nullptr, 1022, 200, 10);
-    // rbt -> insert(rnode);
-    // heap -> push(hnode);
-    // rnode -> heapNode = hnode;
-    // hnode -> rbtNode = rnode;
-    // rbt -> printTree();
-
-    //         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 16, 200, 10);
-    // hnode = new HeapNode(nullptr, 1022, 200, 10);
-    // rbt -> insert(rnode);
-    // heap -> push(hnode);
-    // rnode -> heapNode = hnode;
-    // hnode -> rbtNode = rnode;
-    // rbt -> printTree();
-
-    //         rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, 17, 200, 10);
-    // hnode = new HeapNode(nullptr, 1022, 200, 10);
-    // rbt -> insert(rnode);
-    // heap -> push(hnode);
-    // rnode -> heapNode = hnode;
-    // hnode -> rbtNode = rnode;
-    // rbt -> printTree();
-
-
-
-    cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
-    // rbt -> printTree();
-
-    cout << rbt -> range(-10,25);
-
-    // rbt -> deleteNode(4);
-    // rbt -> deleteNode(9);
-
-    // cout << "Tree size:" << rbt -> treeSize << endl;
-    // rbt -> printTree();
-
-    // rbt -> deleteNode(9);
-
-    // cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
-    // rbt -> printTree();
+    cout << rbt -> range(9,100);
 
 }
 

@@ -172,7 +172,6 @@ public:
                             !isExternalNode(lc) && !isExternalNode(rc) ? 2 : 1;
 
         if(noOfChildren == 0) {
-            // Ext node is root
             RBTNode *extNode = p -> rightChild;
             if(p == root) {
                 root = extNode;
@@ -202,17 +201,20 @@ public:
                 LSTMaxNode -> parent -> rightChild = LSTMaxNode -> leftChild;
                 y = LSTMaxNode -> parent -> rightChild;
             } else {
-                LSTMaxNode -> parent -> rightChild = LSTMaxNode -> leftChild;
-                y = LSTMaxNode -> parent -> rightChild;
+                LSTMaxNode -> parent -> leftChild = LSTMaxNode -> leftChild;
+                y = LSTMaxNode -> parent -> leftChild;
             }
             p -> rideNumber = LSTMaxNode -> rideNumber;
         }
 
-
+        y -> parent = pp;
+        if(y == root || y -> color == RED) {
+            y -> color = BLACK;
+            return;
+        }
+        
         bool colorOfDeletedNode = p -> color;
-        if(colorOfDeletedNode == RED) {
-            // y -> color = RED;
-        } else {
+        if(colorOfDeletedNode == BLACK) {
             adjustRBTAfterDelete(y, pp);
         }
         treeSize--;
@@ -230,6 +232,7 @@ public:
                 y -> color = RED;
             return;
         }
+
         RBTNode *a = v -> leftChild, *b = v -> rightChild;
         int X = getChildType(py, y), c = v -> color, 
         n = a -> color == RED ? (b -> color == RED ? 2 : 1) : b -> color == RED ? 1 : 0;
@@ -250,7 +253,7 @@ public:
             cout << "LB0 case" << endl;
             LB0(y, py);
         } else if(X == L && c == BLACK && n == 1) {
-            LB1Cases(y, py, a);
+            LB1Cases(y, py, b);
         } else if(X == L && c == BLACK && n == 2) {
             LB2(y, py);
         } else if(X == L && c == RED) {
@@ -263,6 +266,7 @@ public:
             y -> color = BLACK;
             return;
         }
+
         RBTNode *v = py -> leftChild;
 
         if(py -> color == BLACK) {
@@ -272,7 +276,7 @@ public:
             v -> color = RED;
             return;
         }
-        RB0(py, py -> parent);
+        adjustRBTAfterDelete(py, py -> parent);
     }
 
     void RB1Cases(RBTNode *y, RBTNode *py, RBTNode *a) {
@@ -286,20 +290,24 @@ public:
     }
 
     void RB11(RBTNode *y, RBTNode *py) {
-        RBTNode* a = py -> leftChild -> leftChild;
+        RBTNode *v = py -> leftChild, *a = v -> leftChild;
         a -> color = BLACK;
+        v -> color = py -> color ;
+        py -> color = BLACK;
         LLRotation(py);
     }
 
     void RB12(RBTNode *y, RBTNode *py) {
-        RBTNode* w = py -> leftChild -> rightChild;
-        w -> color = BLACK;
-        LRRotation(py -> leftChild, py);
+        RBTNode *v = py -> leftChild, *w = v -> rightChild;
+        w -> color = py -> color ;
+        py -> color = BLACK;
+        LRRotation(v, py);
     }
 
     void RB2(RBTNode *y, RBTNode *py) {
         RBTNode* w = py -> leftChild -> rightChild;
-        w -> color = BLACK;
+        w -> color = py -> color;
+        py -> color = BLACK;
         LRRotation(py -> leftChild, py);
     }
 
@@ -318,10 +326,10 @@ public:
         }
     }
 
-    void RR0(RBTNode *py, RBTNode *v, RBTNode *w) {
+    void RR0(RBTNode *py, RBTNode *v, RBTNode *b) {
         LLRotation(py);
         v -> color = BLACK;
-        w -> color = RED;
+        b -> color = RED;
     }
 
     void RR11(RBTNode *y, RBTNode *py, RBTNode *b) {
@@ -329,16 +337,16 @@ public:
         b -> color = BLACK;
     }
 
-    void RR12(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+    void RR12(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *x) {
         RRRotation(w);
         LRRotation(v, py);
-        c -> color = BLACK;
+        x -> color = BLACK;
     }
 
-    void RR2(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+    void RR2(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *x) {
         RRRotation(w);
         LRRotation(v, py);
-        c -> color = BLACK;
+        x -> color = BLACK;
     }
 
     void LB0(RBTNode *y, RBTNode *py) {
@@ -355,11 +363,11 @@ public:
             v -> color = RED;
             return;
         }
-        RB0(py, py -> parent);
+        adjustRBTAfterDelete(py, py -> parent);
     }
 
-    void LB1Cases(RBTNode *y, RBTNode *py, RBTNode *a) {
-        if(a == RED) {
+    void LB1Cases(RBTNode *y, RBTNode *py, RBTNode *b) {
+        if(b == RED) {
             cout << "LB11 case" << endl;
             LB11(y, py);
         } else {
@@ -369,59 +377,63 @@ public:
     }
 
     void LB11(RBTNode *y, RBTNode *py) {
-        RBTNode* a = py -> rightChild -> leftChild;
-        a -> color = BLACK;
+        RBTNode *v = py -> rightChild, *b = v -> rightChild;
+        b -> color = BLACK;
+        v -> color = py -> color ;
+        py -> color = BLACK;
         RRRotation(py);
     }
 
     void LB12(RBTNode *y, RBTNode *py) {
-        RBTNode* w = py -> rightChild -> rightChild;
-        w -> color = BLACK;
-        RLRotation(py -> rightChild, py);
+        RBTNode *v = py -> rightChild, *a = v -> leftChild;
+        a -> color = py -> color ;
+        py -> color = BLACK;
+        RLRotation(v, py);
     }
 
     void LB2(RBTNode *y, RBTNode *py) {
-        RBTNode* w = py -> rightChild -> rightChild;
-        w -> color = BLACK;
-        RLRotation(py -> rightChild, py);
+        RBTNode* a = py -> rightChild -> leftChild;
+        a -> color = py -> color;
+        py -> color = BLACK;
+        LRRotation(py -> rightChild, py);
     }
 
     void LRCases(RBTNode *py) {
-        RBTNode *v = py -> rightChild, *w = v -> leftChild;
-        RBTNode *b = w -> leftChild, *c = w -> rightChild;
+        RBTNode *v = py -> rightChild, *a = v -> leftChild;
+        RBTNode *b = a -> leftChild, *c = a -> rightChild;
         int n = c -> color == RED ? (b -> color == RED ? 2 : 1) : b -> color == RED ? 1 : 0;
 
         if(n == 0) {
-            LR0(py, v, w);
+            LR0(py, v, a);
         } else if(n == 1) {
-            if(b -> color == RED) LR11(v, py, b);
-            else LR12(py, v, w, c);
+            if(c -> color == RED) LR11(v, py, c);
+            else LR12(py, v, a, b);
         } else {
-            LR2(py, v, w, c);
+            LR2(py, v, a, b);
         }
     }
 
-    void LR0(RBTNode *py, RBTNode *v, RBTNode *w) {
+    void LR0(RBTNode *py, RBTNode *v, RBTNode *a) {
         RRRotation(py);
         v -> color = BLACK;
-        w -> color = RED;
+        a -> color = RED;
     }
 
-    void LR11(RBTNode *v, RBTNode *py, RBTNode *b) {
+    void LR11(RBTNode *v, RBTNode *py, RBTNode *c) {
+        RLRotation(v, py);
+        c -> color = BLACK;
+    }
+
+    void LR12(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *b) {
+        LLRotation(w);
         RLRotation(v, py);
         b -> color = BLACK;
     }
 
-    void LR12(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
+    void LR2(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *b) {
         LLRotation(w);
         RLRotation(v, py);
-        c -> color = BLACK;
-    }
-
-    void LR2(RBTNode *py, RBTNode *v, RBTNode *w, RBTNode *c) {
-        LLRotation(w);
-        RLRotation(v, py);
-        c -> color = BLACK;
+        b -> color = BLACK;
     }
 
     void adjustRBT(RBTNode* p) {
