@@ -2,12 +2,13 @@
 #include<iostream>
 
 // Forward declaration of the operations
-void print(int *args);
-void printRange(int *args);
-void insertRide(int* args);
-void getNextRide();
-void cancelRide(int* args);
-void updateTrip(int* args);
+void print(RBT *rbt, Heap *heap, int *args, string &output);
+void printRange(RBT *rbt, Heap *heap, int *args, string &output);
+void insertRide(RBT *rbt, Heap *heap, int* args, string &output);
+void getNextRide(RBT *rbt, Heap *heap, string &output);
+void cancelRide(RBT *rbt, Heap *heap, int* args, string &output);
+void updateTrip(RBT *rbt, Heap *heap, int* args, string &output);
+void parseInput(RBT *rbt, Heap *heap, int argc, char **argv, string &output);
 
 
 void parseArgs3(int *args, string line) {
@@ -38,26 +39,26 @@ void parseArgs1(int *args, string line) {
 }
 
 // Processes input to parse parameters and call required operation functions
-void processOperation(string line, string operationPrefix) {
+void processOperation(RBT *rbt, Heap *heap, string line, string operationPrefix, string &output) {
     int args[3];
     if(operationPrefix == "Pri") {
         if(line.find(",") != string::npos) {
             parseArgs2(args, line);
-            printRange(args);
+            printRange(rbt, heap, args, output);
         } else {
             parseArgs1(args, line);
-            print(args);
+            print(rbt, heap, args, output);
         }
     } else if(operationPrefix == "Ins") {
         parseArgs3(args, line);
-        insertRide(args);
+        insertRide(rbt, heap, args, output);
     } else if(operationPrefix == "Upd") {
         parseArgs2(args, line);
-        updateTrip(args);
+        updateTrip(rbt, heap, args, output);
     } else if(operationPrefix == "Can") {
         parseArgs1(args, line);
-        cancelRide(args);
+        cancelRide(rbt, heap, args, output);
     } else if(operationPrefix == "Get") {
-        getNextRide();
+        getNextRide(rbt, heap, output);
     }
 }

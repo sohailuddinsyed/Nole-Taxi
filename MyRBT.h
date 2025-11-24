@@ -55,6 +55,13 @@ public :
         this -> tripDuration = node -> tripDuration;
     }
 
+    void copyHeapNodeExceptData(RBTNode *node) {
+        this -> leftChild = node -> leftChild;
+        this -> rightChild = node -> rightChild;
+        this -> parent = node -> parent;
+        this -> heapNode = node -> heapNode;
+        this -> color = node -> color;
+    }
 };
 
 class RBT {
@@ -163,23 +170,25 @@ public:
         else return getMaxNode(p -> rightChild, p);
     }
 
-    void deleteNode(int rideNumber) {
+    RBTNode* deleteNode(int rideNumber) {
         RBTNode *p = findNode(rideNumber, root);
-        if(!p) return;
+        if(!p) return p;
 
         RBTNode *pp = p -> parent, *lc = p -> leftChild, *rc = p -> rightChild, *y;
+        int pColor = p -> color;
         int noOfChildren = isExternalNode(lc) && isExternalNode(rc) ? 0 : 
                             !isExternalNode(lc) && !isExternalNode(rc) ? 2 : 1;
 
         if(noOfChildren == 0) {
             RBTNode *extNode = p -> rightChild;
             if(p == root) {
-                root = extNode;
+                root = nullptr;
+                return p;
             } else {
                 if(getChildType(pp, p) == R) pp -> rightChild = extNode;
                 else pp -> leftChild = extNode;
+                y = extNode;
             }
-            y = extNode;
         } else if(noOfChildren == 1) {
             RBTNode *lc = p -> leftChild, *rc = p -> rightChild;
             if(p == root) {
@@ -195,8 +204,6 @@ public:
             y = isExternalNode(lc) ? rc : lc;
         } else {
             RBTNode *LSTMaxNode = getMaxNode(p -> leftChild, p);
-            cout << LSTMaxNode -> rideNumber << endl;
-            LSTMaxNode -> leftChild -> parent = LSTMaxNode -> parent;
             if(LSTMaxNode != p -> leftChild) {
                 LSTMaxNode -> parent -> rightChild = LSTMaxNode -> leftChild;
                 y = LSTMaxNode -> parent -> rightChild;
@@ -204,20 +211,25 @@ public:
                 LSTMaxNode -> parent -> leftChild = LSTMaxNode -> leftChild;
                 y = LSTMaxNode -> parent -> leftChild;
             }
-            p -> rideNumber = LSTMaxNode -> rideNumber;
+            
+            pp = LSTMaxNode -> parent != p ? LSTMaxNode -> parent : LSTMaxNode;
+            // LSTMaxNode -> copyHeapNodeExceptData(p);
+            if(p == root) root = LSTMaxNode;
         }
 
-        y -> parent = pp;
+        // cout << y -> rideNumber << " " << p -> rideNumber << " " << pp -> rideNumber << endl;
+
         if(y == root || y -> color == RED) {
             y -> color = BLACK;
-            return;
+            return p;
         }
+        y -> parent = pp;
         
-        bool colorOfDeletedNode = p -> color;
-        if(colorOfDeletedNode == BLACK) {
+        if(pColor == BLACK) {
             adjustRBTAfterDelete(y, pp);
         }
         treeSize--;
+        return p;
     }
 
     void adjustRBTAfterDelete(RBTNode *y, RBTNode* py) {
@@ -555,6 +567,10 @@ public:
             while(size) {
                 RBTNode *node = q.front();
                 q.pop();
+                if(!node) {
+                    cout << "Empty tree" << endl;
+                    return;
+                }
                 char color = node -> color ? 'b' : 'r';
 
                 if(node -> rideNumber > 0) 
