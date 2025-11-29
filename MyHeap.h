@@ -39,9 +39,9 @@ public :
 };
 
 class Heap {
-    int back;
-    HeapNode* heap[2000];
 public:
+    HeapNode* heap[2000];
+    int back;
     Heap() {
         back = 0;
     }
@@ -66,13 +66,23 @@ public:
     }
 
     HeapNode* pop() {
+        if(back == 0) return nullptr;
         back--;
+        cout << back;
         HeapNode *deletedNode = heap[0];
-
         heap[0] = heap[back];
         heap[0] -> index = 0;
         heapifyDown(0);
         return deletedNode;
+    }
+
+    void remove(HeapNode* heapNode) {
+        int index = heapNode -> index;
+
+        back--;
+        heap[index] = heap[back];
+        heap[index] -> index = index;
+        heapifyDown(index);
     }
 
     void heapifyUp(int childIndex) {
@@ -107,19 +117,31 @@ public:
 
         // If only lc exists
         if(rightChild == back) {
-            if(prc > lcrc || ptd > lctd) childToSwap = leftChild;
+            if(prc > lcrc || (prc == lcrc && ptd > lctd)) 
+                childToSwap = leftChild;
         } else {
             int rcrc = heap[rightChild] -> rideCost, 
                 rctd = heap[rightChild] -> tripDuration;
 
             if(prc < lcrc && prc < rcrc) return;
 
-            if(prc > lcrc || ptd > lctd) childToSwap = leftChild;
-            else if(prc > rcrc || ptd > rctd) childToSwap = rightChild;
+            if(lcrc < rcrc) {
+                childToSwap = leftChild;
+            } else if(lcrc == rcrc) {
+                if(lctd < rctd) childToSwap = leftChild;
+                else childToSwap = rightChild;
+            } else childToSwap = rightChild;
         }
+
+        if(rightChild == back && childToSwap == rightChild) return;
         
-        swap(heap[parent] -> index, heap[childToSwap] -> index);
-        swap(heap[parent], heap[childToSwap]);
+        heap[parent] -> index = childToSwap;
+        heap[childToSwap] -> index = parent;
+
+        HeapNode *p = heap[parent];
+        heap[parent] = heap[childToSwap];
+        heap[childToSwap] = p;
+
         heapifyDown(childToSwap);
     }
 
@@ -136,14 +158,6 @@ public:
         }
     }
 
-    void remove(HeapNode* heapNode) {
-        int index = heapNode -> index;
-
-        back--;
-        heap[index] = heap[back];
-        heap[index] -> index = index;
-        heapifyDown(index);
-    }
 
     void printHeap() {
         int level = 0, limit = 0;
