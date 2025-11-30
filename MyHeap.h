@@ -16,6 +16,7 @@ public :
         rbtNode = nullptr;
     }
 
+    // Initializes HeapNode
     HeapNode(RBTNode *rbtNode, int rideNumber, int rideCost, int tripDuration) {
         this -> index = -1;
         this -> rbtNode = rbtNode;
@@ -24,13 +25,7 @@ public :
         this -> tripDuration = tripDuration;
     }
 
-    void printHeapNode() {
-        cout << "(" << this -> index << ", " <<
-        this -> rideNumber << ", " << 
-        this -> rideCost << ", " << 
-        this -> tripDuration << ")";
-    }
-
+    // Prints the HeapNode triplet to the string
     void printHeapNode(string &output) {
         output += "(" + to_string(this -> rideNumber) + "," + 
         to_string(this -> rideCost) + "," + 
@@ -46,10 +41,7 @@ public:
         back = 0;
     }
 
-    int getSize() {
-        return back;
-    }
-
+    // Pushes a heap node at the back and calls heapify-up
     void push(HeapNode *heapNode) {
         heap[back] = heapNode;
         heap[back] -> index = back;
@@ -57,18 +49,10 @@ public:
         back++;
     }
 
-    void getTopNode () {
-        heap[0] -> printHeapNode();
-    }
-    
-    HeapNode* top () {
-        return heap[0];
-    }
-
+    // Performs pop operation on the root node (index 0) and performs heapify-down
     HeapNode* pop() {
         if(back == 0) return nullptr;
         back--;
-        cout << back;
         HeapNode *deletedNode = heap[0];
         heap[0] = heap[back];
         heap[0] -> index = 0;
@@ -76,6 +60,7 @@ public:
         return deletedNode;
     }
 
+    // Performs arbitrary delete 
     void remove(HeapNode* heapNode) {
         int index = heapNode -> index;
 
@@ -85,6 +70,7 @@ public:
         heapifyDown(index);
     }
 
+    // Performs Heapify operation bottom-up
     void heapifyUp(int childIndex) {
         if(childIndex == 0) return ;
         int parent = childIndex % 2 ? (childIndex - 1)/2 : (childIndex - 1)/2;
@@ -105,6 +91,7 @@ public:
         heapifyUp(parent);
     }
 
+    // Performs Heapify operation top-down
     void heapifyDown(int parent) {
         int leftChild = parent * 2 + 1, rightChild = parent * 2 + 2;
         if(leftChild >= back && rightChild >= back) return;
@@ -145,6 +132,7 @@ public:
         heapifyDown(childToSwap);
     }
 
+    // Updates HeapNode and heapifies
     void update(HeapNode* heapNode, int newRideCost, int newTripDuration) {
         if(newRideCost > heapNode -> rideCost) {
             heapNode -> rideCost = newRideCost;
@@ -156,20 +144,5 @@ public:
             heapNode -> tripDuration = newTripDuration;
             heapifyDown(heapNode -> index);
         }
-    }
-
-
-    void printHeap() {
-        int level = 0, limit = 0;
-
-        for(int i = 0; i < back; i++) {
-            heap[i] -> printHeapNode();
-            cout << ", ";
-            if(i == limit) {
-                limit += pow(2, ++level);
-                cout << endl;
-            }
-        }
-        cout << endl;
     }
 };

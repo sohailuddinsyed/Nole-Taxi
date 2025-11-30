@@ -4,198 +4,125 @@
 #include "MyRBT.h"
 #include "stringUtils.h"
 
+// Print node operation
 void print(RBT *rbt, Heap *heap, int *args, string &output) {
-    cout << "-----------------------------------------------------------" << endl;
-    cout << "print: " << args[0] << endl;
-    output += rbt -> range(args[0], args[0]);
-    // cout << output << endl;
+    int valueToPrint = args[0];
+    RBTNode *node = rbt -> findNode(valueToPrint, rbt -> root);
+    if(node) node -> heapNode -> printHeapNode(output);
+    else output += "(0,0,0)\n";
 }
-
+ // Print range
 void printRange(RBT *rbt, Heap *heap, int *args, string &output) {
-    cout << "-----------------------------------------------------------" << endl;
-    cout << "printRange: " << args[0] << " " << args[1] << endl;
-    output += rbt -> range(args[0], args[1]);
-    // cout << output << endl;
+    int r1 = args[0], r2 = args[1];
+    output += rbt -> range(r1, r2);
 }
 
+// Inserts a new ride in RBT and Min-Heap
 void insertRide(RBT *rbt, Heap *heap, int* args, string &output) {
-    cout << "-----------------------------------------------------------" << endl;
-    cout << "insert: " << args[0] << " " << args[1] << " " << args[2] << endl;
     RBTNode* rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, args[0], args[1], args[2]);
     HeapNode* hnode = new HeapNode(nullptr, args[0], args[1], args[2]);
 
+    // Creates a link between RBT and Min-Heap nodes
     rnode -> heapNode = hnode;
     hnode -> rbtNode = rnode;
 
     if(rbt -> findNode(rnode -> rideNumber, rbt -> root)) {
         output += "Duplicate RideNumber\n";
-        // exit(1);
         return;
     }
-
     rbt -> insert(rnode);
     heap -> push(hnode);
-
-    rbt -> printTree();
-    heap -> printHeap();
 }
 
+// Gets the min-cost ride and deletes it from RBT and Min-Heap
 void getNextRide(RBT *rbt, Heap *heap, string &output) {
-    cout << "-----------------------------------------------------------" << endl;
-    
-    cout << "getNextRide " << heap -> heap[0] -> rideNumber << endl;
+    if(heap -> back == 0) {
+        output += "No active ride requests\n";
+        return;
+    }
+    // Pops the min node form Min-Heap first
     HeapNode* deletedHeapNode = heap -> pop();
     if(!deletedHeapNode) {
         output += "No active ride requests\n";
         return;
     }
     deletedHeapNode -> printHeapNode(output);
-    // cout << rbt -> root -> rideNumber << endl;
     rbt -> deleteNode(deletedHeapNode -> rbtNode -> rideNumber);
-// 
-    cout << endl;
-    heap -> printHeap();
-    rbt -> printTree();
 }
 
+// Deletes a ride from RBT and Min-Heap.
 void cancelRide(RBT *rbt, Heap *heap, int* args, string &output) {
-    cout << "-----------------------------------------------------------" << endl;
-    cout << "cancelRide: " << args[0] << endl;
     HeapNode* deletedHeapNode = rbt -> deleteNode(args[0]);
-    if(!deletedHeapNode) {
-        cout << "No ride" << endl;
-        // output += "\n";
-        return;
-    }
+    if(!deletedHeapNode) return;
     heap -> remove(deletedHeapNode);
-
-    heap -> printHeap();
-    rbt -> printTree();
-    cout << deletedHeapNode -> rideNumber;
-    cout << rbt -> root -> rideNumber;
 }
 
+// Updates an exisiting trip in RBT and Min-Heap
 void updateTrip(RBT *rbt, Heap *heap, int* args, string &output) {
-    cout << "-----------------------------------------------------------" << endl;
     int newTD = args[1];
-    cout<< "updateTrip: " << args[0] << " " << newTD << endl;
     RBTNode* node = rbt -> findNode(args[0], rbt -> root);
     if(node) {
         int existingTD = node -> tripDuration;
+        // Case 1 : New trip Duration is less than existing duration
+        // Only updates in Min-Heap
         if(newTD <= existingTD) {
             node -> tripDuration = newTD;
             heap -> update(node -> heapNode , node -> rideCost, newTD);
-            heap -> printHeap();
-            rbt -> printTree();
-        } else if(existingTD < newTD && newTD <= 2 * existingTD) {
+        } 
+        // Case 2 : New trip Duration is more than existing duration but under
+        // twice of exisitng duration
+        // PErforms cancelRide followed by insertRide
+        else if(existingTD < newTD && newTD <= 2 * existingTD) {
             cancelRide(rbt, heap, args, output);
             args[1] = node -> rideCost + 10;
             args[2] = newTD;
             insertRide(rbt, heap, args, output);
-        } else if(newTD > 2 * existingTD) {
+        }
+        // Case 3 : New trip duration is more than exisiting duration 
+        // Performs cancelRide
+        else if(newTD > 2 * existingTD) {
             cancelRide(rbt, heap, args, output);
         }
-    } else cout << "No trip to update" << endl;
+    }
 }
 
+// Utility function to parse the input from a file
 void parseInput(RBT *rbt, Heap *heap, int argc, char **argv) {
     fstream inputFile;
     inputFile.open(argv[1], ios::in);
     string output;
 
+    ofstream MyFile("output_file.txt");
     if(inputFile.is_open()) {
         string fileLine;
+
         while(getline(inputFile, fileLine)){ 
             string operationPrefix = fileLine.substr(0, 3);
             processOperation(rbt, heap, fileLine, operationPrefix, output);
-            if(output.find_first_of("Duplicate RideNumber") != string::npos) {
+            if(output.find("Duplicate RideNumber") == -1) 
+                MyFile << output;
+            if(output.find("Duplicate RideNumber") != -1) {
+                MyFile << "Duplicate RideNumber";
                 inputFile.close();
-                ofstream MyFile("output_file.txt");
-    MyFile << output;
-    MyFile.close();
-    return;
+                MyFile.close();
+                return;
             }
+            output = "";
         }
         inputFile.close();
     }
 
-    ofstream MyFile("output_file.txt");
     MyFile << output;
     MyFile.close();
 }
 
 int main(int argc, char **argv) {
+    // RBT and Min-Heap object pointers used for performing all operations
     RBT *rbt = new RBT();
     Heap *heap = new Heap();
 
     if(argc >= 2) {
         parseInput(rbt, heap, argc, argv);
         return 0;
-    } else cout << "Insufficient arguments - Please provide input file" << endl;
-    return 0;
-
-    RBTNode *rnode;
-    HeapNode *hnode;
-
-    vector<int> input = {7,6};
-
-    for(int val : input) {
-        rnode = new RBTNode(nullptr, nullptr, nullptr, nullptr, RED, val, 200, 10);
-        hnode = new HeapNode(nullptr, val, 200, 10);
-        rbt -> insert(rnode);
-        heap -> push(hnode);
-        rnode -> heapNode = hnode;
-        hnode -> rbtNode = rnode;
-
-        cout << "Inserted " << val << endl;
-            cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
-        rbt -> printTree();
-    }
-
-    vector<int> dels = {7};
-
-    for(int val : dels) {
-        rbt -> deleteNode(val);
-        cout << "Deleted " << val << endl;
-        cout << "Tree size:" << rbt -> getTreeSize(rbt -> root) << endl;
-        rbt -> printTree();
-    }
-
-    // cout << rbt -> range(9,100);
-
-
-    // heap -> push(new HeapNode(nullptr, 13,70,30));
-    // heap -> push(new HeapNode(nullptr, 11,80,210));
-    // heap -> push(new HeapNode(nullptr, 30,9,9));
-    // // heap -> getTopNode();
-    // // cout << heap -> getSize() << endl;
-
-
-    // heap -> push(new HeapNode(nullptr, 20,8,12));
-    // heap -> pop();
-    // // heap -> getTopNode();
-    // HeapNode *h = new HeapNode(nullptr, 30,9,8);
-    // heap -> push(h);
-    // // cout << heap -> getSize() << endl;
-    // heap -> printHeap();
-
-    // heap -> remove(h);
-    // heap -> printHeap();
-
+    } 
 }
-
-
-/*
-    Heap tests
-    --------------------------------------------------
-    // heap -> push(new HeapNode(nullptr, 10,11,12));
-    // heap -> push(new HeapNode(nullptr, 20,9,12));
-    // heap -> push(new HeapNode(nullptr, 30,9,9));
-    // heap -> getTopNode();
-    // cout << heap -> getSize() << endl;
-
-    // heap -> pop();
-
-    // heap -> getTopNode();
-    // cout << heap -> getSize() << endl;
-*/
