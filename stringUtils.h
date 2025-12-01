@@ -40,7 +40,7 @@ void parseArgs1(int *args, string line) {
     args[0] = stoi(line.substr(index, len - 1)); 
 }
 
-// Processes input to parse parameters and call required operations for GatorTaxi
+// Processes input to parse parameters and call required operations for Nole Taxi
 void processOperation(RBT *rbt, Heap *heap, string line, string operationPrefix, string &output) {
     int args[3];
     if(operationPrefix == "Pri") {

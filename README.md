@@ -1,1 +1,6 @@
 # Nole Taxi
+
+## This project implements the Nole Taxi system using two core data structures: a Min-Heap and a Red-Black Tree (RBT), coordinated through a driver program (NoleTaxi.cpp). The driver initializes both structures, parses input commands, executes taxi operations (such as insert, cancel, update, and print), and writes results to an output file. Helper functions handle individual operations, while stringUtils.h provides parsing utilities to extract arguments from input lines and dispatch the appropriate commands. The system is designed to efficiently manage ride information using synchronized nodes between the heap and the RBT.
+
+## The Min-Heap is used to efficiently retrieve the next ride based on minimum ride cost (with trip duration as a tie-breaker), supporting operations such as insert, delete, update, and heapify in O(log n) time. The Red-Black Tree stores rides ordered by rideNumber, enabling fast search, insertion, deletion, and range queries, all with logarithmic time complexity. Each RBT node maintains a pointer to its corresponding heap node, ensuring consistency across structures. Together, these data structures allow Nole Taxi operations to meet strict time and space complexity requirements while supporting advanced features like range queries and dynamic ride updates.
+
